@@ -120,7 +120,7 @@ CXXFLAGS  = -Wl,-q -fsigned-char -O3 -g -fno-short-enums -mtune=cortex-a9 -mfpu=
 	-Iinclude -Isrc/engine -Isrc/engine/automap -Isrc/engine/common -Isrc/engine/console -Isrc/engine/doom_main -Isrc/engine/finale \
 	-Isrc/engine/fmt -Isrc/engine/game -Isrc/engine/gfx -Isrc/engine/intermission -Isrc/engine/misc -Isrc/engine/net -Isrc/engine/opengl \
 	-Isrc/engine/parser -Isrc/engine/playloop -Isrc/engine/renderer -Isrc/engine/sound -Isrc/engine/statusbar -Isrc/engine/system \
-	-Isrc/engine/wadgen -Isrc/engine/zone
+	-Isrc/engine/wadgen -Isrc/engine/zone -ffast-math
 
 ASFLAGS = $(CFLAGS)
 

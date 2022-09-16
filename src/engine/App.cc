@@ -100,6 +100,7 @@ void app::main(int argc, char **argv)
 	scePowerSetGpuClockFrequency(222);
 	scePowerSetGpuXbarClockFrequency(166);
 	printf("Starting up vitaGL\n");
+	vglUseCachedMem(GL_TRUE);
 	vglInitExtended(0x200000, 960, 544, 0x1000000, SCE_GXM_MULTISAMPLE_4X);
 #endif
 

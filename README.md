@@ -6,6 +6,22 @@ Doom64EX is a reverse-engineering project aimed to recreate Doom64 as close as p
 ## Requirements
 In order to run Doom64EX, you need <b>libshacccg.suprx</b>. If you don't have it installed already, you can install it by following this guide: https://samilops2.gitbook.io/vita-troubleshooting-guide/shader-compiler/extract-libshacccg.suprx
 
+## Known Issues
+- Enabling the Texture Combiner will result in lighting being broken in game. It's suggested to keep it off.
+- When a lot of sounds are played simultaneously, framerate can hinder a bit (down to 30-40 fps).
+- Music playback and sounds sometime can go out of sync and/or repeat small chunks (This is due to a bug in fluidsynth).
+
+## Default Controls
+- X = Jump (when enabled in Options)
+- Start = Pause
+- Select = Open AutoMap
+- Up/Down = Zoom In/Out AutoMap
+- Left/Right = Change Weapon
+- Triangle/Circle = Change Weapon
+- L = Run
+- R = Fire
+- Square = Activate/Use
+
 ## Initial Setup
 - Download <b>Doom64EX.vpk</b> from the Release section and install it.
 - Download <b>Doom64EX.zip</b> from the Release section and extract it in <b>ux0:data/Doom64EX</b>.
@@ -33,7 +49,6 @@ This allows to use Doom 64 remaster WAD with Doom64EX. It will have some minor i
 ## Compiling
 - Compile and install [vitaGL](https://github.com/Rinnegatamante/vitaGL) with `make NO_DEBUG=1 HAVE_HIGH_FFP_TEXUNITS=1 install`.
 - Compile and install [fluidsynth-lite](https://github.com/fgsfdsfgs/fluidsynth-lite).
-- Compile and install [imgui-vita](https://github.com/Rinnegatamante/imgui-vita).
 - Run `make`.
 
 ## Credits
