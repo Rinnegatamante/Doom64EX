@@ -3637,7 +3637,12 @@ static void M_SetInputString(char* string, int len) {
 
     // hack
     if(!dstrcmp(string, EMPTYSTRING)) {
+#ifdef __vita__
+        // autoname the save
+        snprintf(inputString, SAVESTRINGSIZE-1, "SAVEGAME%d", saveSlot);
+#else
         inputString[0] = 0;
+#endif
     }
 
     inputCharIndex = dstrlen(inputString);
