@@ -47,7 +47,7 @@ This allows to use Doom 64 remaster WAD with Doom64EX. It will have some minor i
 - Copy <b>DOOM64.WAD</b> and <b>DOOMSND.SF2</b> to <b>ux0:data/Doom64EX</b>.
 
 ## Compiling
-- Compile and install [vitaGL](https://github.com/Rinnegatamante/vitaGL) with `make NO_DEBUG=1 HAVE_HIGH_FFP_TEXUNITS=1 install`.
+- Compile and install [vitaGL](https://github.com/Rinnegatamante/vitaGL) with `make NO_DEBUG=1 HAVE_HIGH_FFP_TEXUNITS=1 HAVE_WVP_ON_GPU=1 install`.
 - Compile and install [fluidsynth-lite](https://github.com/fgsfdsfgs/fluidsynth-lite).
 - Run `make`.
 
