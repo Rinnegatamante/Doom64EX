@@ -202,8 +202,8 @@ void WIPE_MeltScreen(void) {
         for(j = 0; j < 4; j++) {
             v[j].y += 0.5f;
         }
-
-        //
+#ifndef __vita__
+//
         // update screen buffer
         //
         dglCopyTexSubImage2D(
@@ -216,6 +216,22 @@ void WIPE_MeltScreen(void) {
             padw,
             padh
         );
+#else
+        void *buf = malloc(padw * padh * 4);
+        glReadPixels(0, 0, padw, padh, GL_RGBA, GL_UNSIGNED_BYTE, buf);
+        dglTexImage2D(
+            GL_TEXTURE_2D,
+            0,
+            GL_RGB,
+            padw,
+            padh,
+            0,
+            GL_RGBA,
+            GL_UNSIGNED_BYTE,
+            buf
+        );
+	    free(buf);
+#endif
 
         GL_SwapBuffers();
 

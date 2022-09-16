@@ -102,10 +102,9 @@ BoolProperty am_overlay("am_overlay", "Show automap overlay");
 extern FloatProperty v_msensitivityx;
 extern FloatProperty v_msensitivityy;
 
-#ifdef _USE_XINPUT  // XINPUT
-CVAR_EXTERNAL(i_rsticksensitivity);
-CVAR_EXTERNAL(i_xinputscheme);
-#endif
+extern FloatProperty i_rsticksensitivityy;
+extern FloatProperty i_rsticksensitivityx;
+extern IntProperty i_xinputscheme;
 
 //
 // CMD_Automap
@@ -340,7 +339,6 @@ dboolean AM_Responder(event_t* ev) {
             }
         }
     }
-#ifdef _USE_XINPUT  // XINPUT
 
     else if(ev->type == ev_gamepad) {
         //
@@ -348,12 +346,12 @@ dboolean AM_Responder(event_t* ev) {
         // moving around with the stick
         //
         if(am_flags & AF_PANGAMEPAD) {
-            if(ev->data3 == XINPUT_GAMEPAD_LEFT_STICK) {
+            if(ev->data3 == GAMEPAD_LEFT_STICK) {
                 float x;
                 float y;
 
-                x = (float)ev->data1 * i_rsticksensitivity.value / (1500.0f / scale);
-                y = (float)ev->data2 * i_rsticksensitivity.value / (1500.0f / scale);
+                x = (float)ev->data1 * i_rsticksensitivityx / (1500.0f / scale);
+                y = (float)ev->data2 * i_rsticksensitivityy / (1500.0f / scale);
 
                 mpanx = (int)x << 16;
                 mpany = (int)y << 16;
@@ -368,46 +366,46 @@ dboolean AM_Responder(event_t* ev) {
             //
             // pan button
             //
-            case BUTTON_A:
+            case GAMEPAD_A:
                 CMD_AutomapSetFlag(AF_PANGAMEPAD, NULL);
                 break;
 
-            case BUTTON_LEFT_SHOULDER:
+            case GAMEPAD_LSHOULDER:
                 if(am_flags & AF_PANGAMEPAD) {
                     CMD_AutomapSetFlag(AF_ZOOMIN, NULL);
                     rc = true;
                 }
                 break;
 
-            case BUTTON_RIGHT_SHOULDER:
+            case GAMEPAD_RSHOULDER:
                 if(am_flags & AF_PANGAMEPAD) {
                     CMD_AutomapSetFlag(AF_ZOOMOUT, NULL);
                     rc = true;
                 }
                 break;
 
-            case BUTTON_DPAD_UP:
+            case GAMEPAD_DPAD_UP:
                 if(am_flags & AF_PANGAMEPAD) {
                     CMD_AutomapSetFlag(AF_PANTOP, NULL);
                     rc = true;
                 }
                 break;
 
-            case BUTTON_DPAD_DOWN:
+            case GAMEPAD_DPAD_DOWN:
                 if(am_flags & AF_PANGAMEPAD) {
                     CMD_AutomapSetFlag(AF_PANBOTTOM, NULL);
                     rc = true;
                 }
                 break;
 
-            case BUTTON_DPAD_LEFT:
+            case GAMEPAD_DPAD_LEFT:
                 if(am_flags & AF_PANGAMEPAD) {
                     CMD_AutomapSetFlag(AF_PANLEFT, NULL);
                     rc = true;
                 }
                 break;
 
-            case BUTTON_DPAD_RIGHT:
+            case GAMEPAD_DPAD_RIGHT:
                 if(am_flags & AF_PANGAMEPAD) {
                     CMD_AutomapSetFlag(AF_PANRIGHT, NULL);
                     rc = true;
@@ -417,37 +415,36 @@ dboolean AM_Responder(event_t* ev) {
         }
         else if(ev->type == ev_keyup) {
             switch(ev->data1) {
-            case BUTTON_A:
+            case GAMEPAD_A:
                 CMD_AutomapSetFlag(AF_PANGAMEPAD|PCKF_UP, NULL);
                 break;
 
-            case BUTTON_LEFT_SHOULDER:
+            case GAMEPAD_LSHOULDER:
                 CMD_AutomapSetFlag(AF_ZOOMIN|PCKF_UP, NULL);
                 break;
 
-            case BUTTON_RIGHT_SHOULDER:
+            case GAMEPAD_RSHOULDER:
                 CMD_AutomapSetFlag(AF_ZOOMOUT|PCKF_UP, NULL);
                 break;
 
-            case BUTTON_DPAD_UP:
+            case GAMEPAD_DPAD_UP:
                 CMD_AutomapSetFlag(AF_PANTOP|PCKF_UP, NULL);
                 break;
 
-            case BUTTON_DPAD_DOWN:
+            case GAMEPAD_DPAD_DOWN:
                 CMD_AutomapSetFlag(AF_PANBOTTOM|PCKF_UP, NULL);
                 break;
 
-            case BUTTON_DPAD_LEFT:
+            case GAMEPAD_DPAD_LEFT:
                 CMD_AutomapSetFlag(AF_PANLEFT|PCKF_UP, NULL);
                 break;
 
-            case BUTTON_DPAD_RIGHT:
+            case GAMEPAD_DPAD_RIGHT:
                 CMD_AutomapSetFlag(AF_PANRIGHT|PCKF_UP, NULL);
                 break;
             }
         }
     }
-#endif
 
     return rc;
 
@@ -502,8 +499,6 @@ void AM_Ticker(void) {
         }
     }
 
-#ifdef _USE_XINPUT  // XINPUT
-
     if(am_flags & AF_PANGAMEPAD) {
         automappanx += mpanx;
         automappany += mpany;
@@ -514,8 +509,6 @@ void AM_Ticker(void) {
         automapy = plr->mo->y;
         automapangle = plr->mo->angle;
     }
-
-#endif
 
     if((!followplayer || (am_flags & AF_PANGAMEPAD)) &&
             am_flags & (AF_PANLEFT|AF_PANRIGHT|AF_PANTOP|AF_PANBOTTOM)) {

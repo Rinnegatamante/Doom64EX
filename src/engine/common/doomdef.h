@@ -342,6 +342,34 @@ extern dboolean windowpause;
 #define KEY_MWHEELUP            (0x80 + 0x6b)
 #define KEY_MWHEELDOWN          (0x80 + 0x6c)
 
+//
+// Controller
+//
+
+enum {
+    GAMEPAD_INVALID = 0,
+    GAMEPAD_A = 400, // start after KEY_
+    GAMEPAD_B,
+    GAMEPAD_X,
+    GAMEPAD_Y,
+    GAMEPAD_BACK,
+    GAMEPAD_GUIDE,
+    GAMEPAD_START,
+    GAMEPAD_LSTICK,
+    GAMEPAD_RSTICK,
+    GAMEPAD_LSHOULDER,
+    GAMEPAD_RSHOULDER,
+    GAMEPAD_LTRIGGER,
+    GAMEPAD_RTRIGGER,
+    GAMEPAD_DPAD_UP,
+    GAMEPAD_DPAD_DOWN,
+    GAMEPAD_DPAD_LEFT,
+    GAMEPAD_DPAD_RIGHT,
+
+    GAMEPAD_LEFT_STICK,
+    GAMEPAD_RIGHT_STICK
+};
+
 // DOOM basic types (dboolean),
 //  and max/min values.
 #include "doomtype.h"

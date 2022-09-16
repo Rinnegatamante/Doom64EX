@@ -1,7 +1,31 @@
 #include "SDL.h"
 #include <imp/Video>
 #include <imp/Property>
+#ifdef __vita__
+#include <imp/Prelude>
+#include <imp/NativeUI>
+
+void native_ui::init()
+{
+}
+void native_ui::console_show(bool)
+{
+}
+void native_ui::console_add_line(StringView line)
+{
+}
+
+namespace imp {
+  namespace config {
+    constexpr auto name = "Doom64EX"_sv;
+    constexpr auto version = "3.0.0"_sv;
+    constexpr auto version_git = "03a5e6a"_sv;
+    constexpr auto version_full = "3.0.0-git+03a5e6a"_sv;
+  }
+}
+#else
 #include <config.hh>
+#endif
 #include <doomdef.h>
 #include <doom_main/d_main.h>
 #include <SDL_video.h>
@@ -9,6 +33,17 @@
 #include <renderer/r_main.h>
 
 namespace {
+  constexpr Sint32 s_deadzone = 8000;
+
+  void s_clamp(Sint32& axis)
+  {
+      if (axis < s_deadzone && axis > -s_deadzone) {
+          axis = 0;
+      }
+  }
+
+  SDL_GameController *s_controller {};
+  
   // Exclusive fullscreen by default on Windows only.
 #ifdef _WIN32
   constexpr auto fullscreen_default = 0;
@@ -144,6 +179,30 @@ namespace {
       default: return key;
       }
   }
+  
+  int translate_controller_(int state) {
+      switch (state) {
+      case SDL_CONTROLLER_BUTTON_A: return GAMEPAD_A;
+      case SDL_CONTROLLER_BUTTON_B: return GAMEPAD_B;
+      case SDL_CONTROLLER_BUTTON_X: return GAMEPAD_X;
+      case SDL_CONTROLLER_BUTTON_Y: return GAMEPAD_Y;
+
+      case SDL_CONTROLLER_BUTTON_BACK: return GAMEPAD_BACK;
+      case SDL_CONTROLLER_BUTTON_GUIDE: return GAMEPAD_GUIDE;
+      case SDL_CONTROLLER_BUTTON_START: return GAMEPAD_START;
+      case SDL_CONTROLLER_BUTTON_LEFTSTICK: return GAMEPAD_LSTICK;
+      case SDL_CONTROLLER_BUTTON_RIGHTSTICK: return GAMEPAD_RSTICK;
+      case SDL_CONTROLLER_BUTTON_LEFTSHOULDER: return GAMEPAD_LSHOULDER;
+      case SDL_CONTROLLER_BUTTON_RIGHTSHOULDER: return GAMEPAD_RSHOULDER;
+
+      case SDL_CONTROLLER_BUTTON_DPAD_UP: return GAMEPAD_DPAD_UP;
+      case SDL_CONTROLLER_BUTTON_DPAD_DOWN: return GAMEPAD_DPAD_DOWN;
+      case SDL_CONTROLLER_BUTTON_DPAD_LEFT: return GAMEPAD_DPAD_LEFT;
+      case SDL_CONTROLLER_BUTTON_DPAD_RIGHT: return GAMEPAD_DPAD_RIGHT;
+
+      default: return GAMEPAD_INVALID;
+      }
+  }
 
   int translate_mouse_(int state) {
       return 0
@@ -162,7 +221,7 @@ IntProperty v_width { "v_Width", "Video width (-1: desktop width)", -1 };
 IntProperty v_height { "v_Height", "Video height (-1: desktop height)", -1 };
 IntProperty v_depthsize { "v_DepthSize", "Depth buffer fragment size", 24 };
 IntProperty v_buffersize { "v_BufferSize", "Framebuffer fragment size", 32 };
-BoolProperty v_vsync { "v_VSync", "Vertical sync", true };
+IntProperty v_vsync { "v_VSync", "Vertical sync", 1 };
 IntProperty v_windowed { "v_Windowed", "Window mode", fullscreen_default };
 
 /* Mouse Input */
@@ -172,6 +231,11 @@ FloatProperty v_macceleration { "v_MAcceleration", "Mouse acceleration", 0.0f };
 BoolProperty v_mlook { "v_MLook", "Mouse-look", true };
 BoolProperty v_mlookinvert { "v_MLookInvert", "Invert Y-Axis", false };
 BoolProperty v_yaxismove { "v_YAxisMove", "Move with the mouse", false };
+
+/* Gamepad Input */
+IntProperty i_xinputscheme { "i_xinputscheme", "XInput Scheme", 0 };
+FloatProperty i_rsticksensitivityx { "i_rsticksensitivityx", "Right stick X sensitivity", 2.0f };
+FloatProperty i_rsticksensitivityy { "i_rsticksensitivityy", "Right stick Y sensitivity", 1.5f };
 
 class SdlVideo : public IVideo {
     SDL_Window* sdl_window_ {};
@@ -313,7 +377,7 @@ public:
 
         SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, copy.buffer_size);
         SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, copy.depth_size);
-        SDL_GL_SetSwapInterval(copy.vsync ? 1 : 0);
+        SDL_GL_SetSwapInterval(copy.vsync);
 
         if (!sdl_window_) {
             // Prepare SDL's GL attributes
@@ -409,7 +473,7 @@ public:
             mode.fullscreen = Fullscreen::none;
         }
 
-        mode.vsync = SDL_GL_GetSwapInterval() == SDL_TRUE;
+        mode.vsync = SDL_GL_GetSwapInterval();
 
         return mode;
     }
@@ -435,6 +499,11 @@ public:
             SDL_SetWindowGrab(sdl_window_, SDL_FALSE);
             SDL_ShowCursor(SDL_FALSE);
         }
+    }
+	
+	bool have_controller() override
+    {
+        return s_controller;
     }
 
     void poll_events() override
@@ -471,6 +540,24 @@ public:
                 doom.data2 = translate_scancode_(e.key.keysym.scancode);
                 D_PostEvent(&doom);
                 break;
+				
+			case SDL_CONTROLLERDEVICEADDED:
+                println("SDL: Controller added: {}", SDL_GameControllerNameForIndex(e.cdevice.which));
+                s_controller = SDL_GameControllerOpen(e.cdevice.which);
+                assert(s_controller);
+				break;
+			
+			case SDL_CONTROLLERDEVICEREMOVED:
+                println("SDL: Controller removed");
+                s_controller = nullptr;
+                break;
+
+            case SDL_CONTROLLERBUTTONDOWN:
+            case SDL_CONTROLLERBUTTONUP:
+                doom.type = (e.type == SDL_CONTROLLERBUTTONDOWN) ? ev_keydown : ev_keyup;
+                doom.data1 = translate_controller_(e.cbutton.button);
+                D_PostEvent(&doom);
+				break;
 
             case SDL_MOUSEBUTTONDOWN:
             case SDL_MOUSEBUTTONUP:
@@ -527,6 +614,63 @@ public:
         }
 
         int x, y;
+		if (s_controller) {
+            event_t ev {};
+
+            x = SDL_GameControllerGetAxis(s_controller, SDL_CONTROLLER_AXIS_LEFTX);
+            y = SDL_GameControllerGetAxis(s_controller, SDL_CONTROLLER_AXIS_LEFTY);
+
+            s_clamp(x);
+            s_clamp(y);
+
+            ev.type = ev_gamepad;
+            ev.data1 = x;
+            ev.data2 = -y;
+            ev.data3 = GAMEPAD_LEFT_STICK;
+            D_PostEvent(&ev);
+
+            x = SDL_GameControllerGetAxis(s_controller, SDL_CONTROLLER_AXIS_RIGHTX);
+            y = SDL_GameControllerGetAxis(s_controller, SDL_CONTROLLER_AXIS_RIGHTY);
+
+            s_clamp(x);
+            s_clamp(y);
+
+            ev.type = ev_gamepad;
+            ev.data1 = x;
+            ev.data2 = -y;
+            ev.data3 = GAMEPAD_RIGHT_STICK;
+            D_PostEvent(&ev);
+
+            static bool old_ltrigger = false;
+            static bool old_rtrigger = false;
+
+            auto z = SDL_GameControllerGetAxis(s_controller, SDL_CONTROLLER_AXIS_TRIGGERLEFT);
+            if (z >= 0x4000 && !old_ltrigger) {
+                old_ltrigger = true;
+                ev.type = ev_keydown;
+                ev.data1 = GAMEPAD_LTRIGGER;
+                D_PostEvent(&ev);
+            } else if (z < 0x4000 && old_ltrigger) {
+                old_ltrigger = false;
+                ev.type = ev_keyup;
+                ev.data1 = GAMEPAD_LTRIGGER;
+                D_PostEvent(&ev);
+            }
+
+            z = SDL_GameControllerGetAxis(s_controller, SDL_CONTROLLER_AXIS_TRIGGERRIGHT);
+            if (z >= 0x4000 && !old_rtrigger) {
+                old_rtrigger = true;
+                ev.type = ev_keydown;
+                ev.data1 = GAMEPAD_RTRIGGER;
+                D_PostEvent(&ev);
+            } else if (z < 0x4000 && old_rtrigger) {
+                old_rtrigger = false;
+                ev.type = ev_keyup;
+                ev.data1 = GAMEPAD_RTRIGGER;
+                D_PostEvent(&ev);
+            }
+        }
+		
         SDL_GetRelativeMouseState(&x, &y);
         auto btn = SDL_GetMouseState(&mouse_x, &mouse_y);
         if (x != 0 || y != 0 || btn || (lastmbtn_ != btn)) {

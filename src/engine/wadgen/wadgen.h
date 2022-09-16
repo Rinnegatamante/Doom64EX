@@ -22,6 +22,9 @@
 #else
 #include <limits.h>
 #endif
+#ifdef __vita__
+#define PATH_MAX 256
+#endif
 #define MAX_PATH PATH_MAX
 #define ZeroMemory(a,l) memset(a, 0, l)
 #endif
@@ -93,7 +96,7 @@ cache Png_Create(int width, int height, int numpal, dPalette_t * pal,
 
 #define TOTALSTEPS	3500
 
-#ifndef _WIN32
+#if !defined(_WIN32) && !defined(__vita__)
 static inline char *strupr(char *in)
 {
 	unsigned char *ptr = (unsigned char *)in;

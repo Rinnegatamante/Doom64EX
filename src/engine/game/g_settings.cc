@@ -42,6 +42,8 @@
 static char *ConfigFileName =
 #ifdef _WIN32
     "config.cfg"
+#elif defined(__vita__)
+	"ux0:data/Doom64EX/config.cfg"
 #else
     NULL
 #endif

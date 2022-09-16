@@ -232,6 +232,9 @@ void dglViewFrustum(int width, int height, rfloat fovy, rfloat znear) {
     m[15] = 0;
 
     dglMultMatrixf(m);
+#ifdef __vita__
+	dglDepthMask(GL_TRUE);
+#endif
 }
 
 //

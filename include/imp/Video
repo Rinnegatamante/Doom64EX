@@ -26,7 +26,7 @@ namespace imp {
       int buffer_size { 32 };
       int depth_size { 24 };
       Fullscreen fullscreen { Fullscreen::none };
-      bool vsync { false };
+      int vsync { 1 };
   };
 
   struct IVideo {
@@ -37,6 +37,7 @@ namespace imp {
       virtual void swap_window() = 0;
       virtual void grab(bool) = 0;
       virtual void poll_events() = 0;
+	  virtual bool have_controller() = 0;
 
       bool is_windowed()
       { return current_mode().fullscreen == Fullscreen::none; }

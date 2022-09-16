@@ -194,6 +194,8 @@ ticcmd_t* I_BaseTiccmd(void) {
 char *I_GetUserDir(void) {
 #ifdef _WIN32
     return I_GetBaseDir();
+#elif defined(__vita__)
+	return (char *)"ux0:data/Doom64EX/";
 #else
     return SDL_GetPrefPath("", "doom64ex");
 #endif
@@ -410,22 +412,3 @@ void I_BeginRead(void) {
     inshowbusy=false;
     BusyDisk=true;
 }
-
-//
-// I_RegisterCvars
-//
-
-#ifdef _USE_XINPUT
-CVAR_EXTERNAL(i_rsticksensitivity);
-CVAR_EXTERNAL(i_rstickthreshold);
-CVAR_EXTERNAL(i_xinputscheme);
-#endif
-
-void I_RegisterCvars(void) {
-#ifdef _USE_XINPUT
-    CON_CvarRegister(&i_rsticksensitivity);
-    CON_CvarRegister(&i_rstickthreshold);
-    CON_CvarRegister(&i_xinputscheme);
-#endif
-}
-

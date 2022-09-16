@@ -19,7 +19,7 @@ This is the indended way to install original Doom64EX.
 - Copy <b>DOOM64.WAD</b> and <b>DOOMSND.SF2</b> to <b>ux0:data/Doom64EX</b>.
 
 ## Setup from Steam
-This allows to use Doom 64 remaster WAD with Doom64EX. It will have some minor issues with demo playback but will allow to play also the exclusive <b>The Lost Levels</b>
+This allows to use Doom 64 remaster WAD with Doom64EX. It will have some minor issues with demo playback but will allow to play also the exclusive <b>The Lost Levels</b>.
 - [Buy the game on Steam](https://store.steampowered.com/app/1148590/DOOM_64/).
 - With a webbrowser, navigate to the url <b>steam://nav/console</b>.
 - When asked with what to open said link, select Steam.
@@ -38,5 +38,6 @@ This allows to use Doom 64 remaster WAD with Doom64EX. It will have some minor i
 
 ## Credits
 - svkaiser for the original Doom64EX.
+- fgsfds for the Doom64EX Switch port used as reference for some fixes.
 - CatoTheYounger for testing the homebrew.
 - Brandonheat8 for the Livearea assets.

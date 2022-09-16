@@ -1,3 +1,10 @@
+*.o
+*.elf
+*.velf
+*.bin
+*.vpk
+*.sfo
+
 # ignore CLion-specific project files
 /.idea/
 /cmake-build-*/
@@ -11,7 +18,7 @@
 !/extern/patched-config_win32.h
 
 # build dir
-/build
+/build/wadgen
 
 # conan
 conanbuildinfo.cmake

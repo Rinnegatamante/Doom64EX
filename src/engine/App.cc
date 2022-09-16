@@ -4,6 +4,14 @@
 #include <imp/Wad>
 #include <sys/stat.h>
 
+#ifdef __vita__
+#include <vitasdk.h>
+#include <vitaGL.h>
+extern "C" {
+int _newlib_heap_size_user = 200 * 1024 * 1024;
+};
+#endif
+
 #include "SDL.h"
 
 #ifdef main
@@ -30,9 +38,13 @@ namespace {
   }
 
   auto &_params = _gparams();
-
+#ifdef __vita__
+  String _base_dir { "ux0:/data/Doom64EX/" };
+  String _data_dir { "ux0:/data/Doom64EX/" };
+#else
   String _base_dir { "./" };
   String _data_dir { "./" };
+#endif
   StringView _program;
 
   Vector<String> _rest;
@@ -82,17 +94,39 @@ namespace {
 [[noreturn]]
 void app::main(int argc, char **argv)
 {
+#ifdef __vita__
+	scePowerSetArmClockFrequency(444);
+	scePowerSetBusClockFrequency(222);
+	scePowerSetGpuClockFrequency(222);
+	scePowerSetGpuXbarClockFrequency(166);
+	printf("Starting up vitaGL\n");
+	vglInitExtended(0x200000, 960, 544, 0x1000000, SCE_GXM_MULTISAMPLE_4X);
+#endif
+
     using Arity = app::Param::Arity;
     myargc = argc;
     myargv = argv;
 
     _program = argv[0];
 
+#ifndef __vita__
     auto base_dir = SDL_GetBasePath();
     if (base_dir) {
         _base_dir = base_dir;
         SDL_free(base_dir);
     }
+#else
+	// Init Net
+	sceSysmoduleLoadModule(SCE_SYSMODULE_NET);
+	int ret = sceNetShowNetstat();
+	SceNetInitParam initparam;
+	if (ret == SCE_NET_ERROR_ENOTINIT) {
+		initparam.memory = malloc(141 * 1024);
+		initparam.size = 141 * 1024;
+		initparam.flags = 0;
+		sceNetInit(&initparam);
+	}
+#endif
 
     // Data files have to be in the cwd on Windows for compatibility reasons.
 #ifndef _WIN32

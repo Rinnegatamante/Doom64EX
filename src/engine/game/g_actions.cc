@@ -417,14 +417,9 @@ dboolean G_ActionResponder(event_t *ev) {
         G_DoCmdMouseMove(ev->data2, ev->data3);
         break;
 
-#ifdef _USE_XINPUT  // XINPUT
     case ev_gamepad:
-        I_XInputReadActions(ev);
+        G_DoCmdGamepadMove(ev);
         break;
-#else
-    case ev_gamepad:
-        break;
-#endif
     }
 
     return false;
