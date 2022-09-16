@@ -23,7 +23,7 @@ This allows to use Doom 64 remaster WAD with Doom64EX. It will have some minor i
 - [Buy the game on Steam](https://store.steampowered.com/app/1148590/DOOM_64/).
 - With a webbrowser, navigate to the url <b>steam://nav/console</b>.
 - When asked with what to open said link, select Steam.
-- On Steam, you'll get prompted with the console, input in the console <b>download_depot 1148590 1148591 7293157900876244073</b>.
+- On Steam, you'll get prompted with the console, input in the console `download_depot 1148590 1148591 7293157900876244073`.
 - Steam will start download the depot. Once finished, it will show in the console what path it downloaded it to, navigate towards that directory.
 - Download the Doom64EX Steam to EX patch made by Henky [from this url](http://henk.tech/doom64).
 - Extract the archive in the same folder of the downloaded depot.
