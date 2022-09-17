@@ -539,45 +539,17 @@ dtexture GL_ScreenToTexture(void) {
     width = GL_PadTextureDims(video_width);
     height = GL_PadTextureDims(video_height);
 
-#ifndef __vita__
-    dglTexImage2D(
-        GL_TEXTURE_2D,
-        0,
-        GL_RGB8,
-        width,
-        height,
-        0,
-        GL_RGB,
-        GL_UNSIGNED_BYTE,
-        0
-    );
-	
-    dglCopyTexSubImage2D(
-        GL_TEXTURE_2D,
-        0,
-        0,
-        0,
-        0,
-        0,
-        width,
-        height
-    );
-#else
-    void *buf = malloc(width * height * 4);
-    glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, buf);
-    dglTexImage2D(
+    dglCopyTexImage2D(
         GL_TEXTURE_2D,
         0,
         GL_RGB,
+        0,
+        0,
         width,
         height,
-        0,
-        GL_RGBA,
-        GL_UNSIGNED_BYTE,
-        buf
+		0
     );
-	free(buf);
-#endif
+
     return id;
 }
 
