@@ -10,6 +10,23 @@
 extern "C" {
 int _newlib_heap_size_user = 200 * 1024 * 1024;
 };
+
+void early_fatal_error(const char *msg) {
+	vglInit(0);
+	SceMsgDialogUserMessageParam msg_param;
+	sceClibMemset(&msg_param, 0, sizeof(SceMsgDialogUserMessageParam));
+	msg_param.buttonType = SCE_MSG_DIALOG_BUTTON_TYPE_OK;
+	msg_param.msg = (const SceChar8*)msg;
+	SceMsgDialogParam param;
+	sceMsgDialogParamInit(&param);
+	param.mode = SCE_MSG_DIALOG_MODE_USER_MSG;
+	param.userMsgParam = &msg_param;
+	sceMsgDialogInit(&param);
+	while (sceMsgDialogGetStatus() != SCE_COMMON_DIALOG_STATUS_FINISHED) {
+		vglSwapBuffers(GL_TRUE);
+	}
+	sceKernelExitProcess(0);
+}
 #endif
 
 #include "SDL.h"
@@ -95,6 +112,11 @@ namespace {
 void app::main(int argc, char **argv)
 {
 #ifdef __vita__
+	// Checking for libshacccg.suprx existence
+	SceIoStat st1, st2;
+	if (!(sceIoGetstat("ur0:/data/libshacccg.suprx", &st1) >= 0 || sceIoGetstat("ur0:/data/external/libshacccg.suprx", &st2) >= 0))
+		early_fatal_error("Error: Runtime shader compiler (libshacccg.suprx) is not installed.");
+
 	scePowerSetArmClockFrequency(444);
 	scePowerSetBusClockFrequency(222);
 	scePowerSetGpuClockFrequency(222);
