@@ -32,7 +32,11 @@
 #include <algorithm>
 
 #include "SDL.h"
+#ifdef __vita__
+#include <fluidsynth/fluidsynth.h>
+#else
 #include "fluidsynth.h"
+#endif
 
 #include "doomtype.h"
 #include "doomdef.h"
